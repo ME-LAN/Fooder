@@ -33,6 +33,7 @@ dependencies {
     compile 'com.google.firebase:firebase-core:9.4.0'
     compile 'com.google.android.gms:play-services:9.4.0'
     compile 'com.firebaseui:firebase-ui:0.5.3'
+    compile 'com.firebase:geofire-android:2.1.0'
     compile('com.mikepenz:materialdrawer:5.6.0@aar') {
         transitive = true
     }
