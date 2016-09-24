@@ -25,8 +25,13 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -45,6 +50,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.mikepenz.iconics.IconicsDrawable;
@@ -77,12 +83,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private LinearLayoutManager recyclerViewLayoutManager;
     private GoogleApiClient mGoogleApiClient, googleApiClient;
-    private DatabaseReference hotelinforef, rootref;
+    private DatabaseReference hotelinforef, rootref,hotelgeofire;
     private FirebaseRecyclerAdapter<HotelList, HotelListHolder> mRecyclerViewHotelInfo;
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     FirebaseAuth auth;
     private AVLoadingIndicatorView avi;
-
+    GeoFire geoFire;
+    GeoQuery geoQuery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +120,43 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         auth = FirebaseAuth.getInstance();
         rootref = FirebaseDatabase.getInstance().getReference();
         hotelinforef = rootref.child("hotelList");
+        hotelgeofire = rootref.child("geoFire");
         setupDrawerItems();
+
+        geoFire = new GeoFire(hotelgeofire);
+        geoQuery = geoFire.queryAtLocation(new GeoLocation(22.682776, 72.87486899999999), 2);
+
+        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+                Toast.makeText(MainActivity.this,"Entered at key="+key +"and location"+ location.latitude+"and"+location.longitude,Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+
+            }
+        });
+
+
+
+
+
 
         recyclerViewLayoutManager = new LinearLayoutManager(this);
         hotelListRecycler.setHasFixedSize(false);
@@ -128,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onStart() {
         super.onStart();
-        attachRecyclerViewAdapter();
+        //attachRecyclerViewAdapter();
     }
 
     @Override
